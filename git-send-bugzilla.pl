@@ -37,7 +37,7 @@ sub authenticate {
 	}
 
 	print STDERR "Logging in as $username...\n";
-	$mech->get("$url/index.cgi?GoAheadAndLogIn=1");
+	$mech->get("$url?GoAheadAndLogIn=1");
 	die "Can't fetch login form: ", $mech->res->status_line
 		unless $mech->success;
 
@@ -106,7 +106,7 @@ sub add_attachment {
 		unless $mech->success;
 
 	die "Error while attaching patch. Aborting\n"
-		unless $mech->title =~ /Changes Submitted/i;
+		unless $mech->title =~ /(Changes Submitted|Attachment \d+ added)/i;
 }
 
 sub read_repo_config {
@@ -131,7 +131,14 @@ sub usage {
 	exit $exitcode;
 }
 
-$url = read_repo_config 'url', 'str', 'http://bugzilla.gnome.org';
+$url = read_repo_config 'url';
+die <<ERROR unless $url;
+URL of your bugzilla instance is not configured,
+Please configure your bugzilla instance like:
+
+   git config bugzilla.url http://bugzilla.gnome.org
+   git config bugzilla.url http://bugzilla.redhat.com
+ERROR
 my $username = read_repo_config 'username';
 my $password = read_repo_config 'password';
 my $numbered = read_repo_config 'numbered', 'bool', 0;
