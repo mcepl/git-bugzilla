@@ -69,7 +69,8 @@ sub get_patch_info {
 	$comment .= "\n---\n" unless $comment eq '';
 	$comment .= `git diff-tree --stat --no-commit-id $rev1 $rev2`;
 
-	my $patch = `git diff-tree -p $rev1 $rev2`;
+	my $range = $rev2 ? "..$rev2" : " -1";
+	my $patch = `git format-patch --stdout $rev1$range`;
 
 	return ($description, $comment, $patch);
 }
