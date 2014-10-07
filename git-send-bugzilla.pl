@@ -40,10 +40,16 @@ sub authenticate {
 	$mech->get("$url?GoAheadAndLogIn=1");
 	die "Can't fetch login form: ", $mech->res->status_line
 		unless $mech->success;
+	$mech->get("$url?GoAheadAndLogIn=1");
 
-	$mech->set_fields(Bugzilla_login => $username,
-			  Bugzilla_password => $password);
-	$mech->submit;
+	$mech->submit_form(
+		with_fields => {
+			Bugzilla_login => $username,
+			Bugzilla_password => $password
+		},
+		button => "GoAheadAndLogIn"
+	);
+
 	die "Login submission failed: ", $mech->res->status_line
 		unless $mech->success;
 	die "Invalid login or password\n" if $mech->title =~ /Invalid/i;
